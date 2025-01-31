@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "actverse-analysis"
+version = "0.1.0"
+description = "A analysis library for Actverse"
+authors = [
+    { name = "actnova-inc", email = "hi@actnova.io" }
+]
+maintainers = [
+    { name = "willook", email = "jonghwa@actnova.io" }
+]
+license = { text = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "cv2",
+    "numpy",
+    "matplotlib",
+]
+
+[tool.setuptools]
+py-modules = ["actverse"]
+
+[project.urls]
+homepage = "https://actnova.io"
+repository = "https://github.com/actnova-inc/actverse-analysis"
