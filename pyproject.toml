@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["actverse"]
+packages = { find = {} }
 
 [project.urls]
 homepage = "https://actnova.io"
