@@ -12,3 +12,8 @@ def correct_angle(current_angle, previous_angle):
         else:  # -np.pi
             current_angle += 360  # * np.pi
     return current_angle
+
+
+def moving_average(data, window_size):
+    kernel = np.ones(window_size) / window_size
+    return np.convolve(data, kernel, mode="same")
