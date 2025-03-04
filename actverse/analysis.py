@@ -1,20 +1,42 @@
+from typing import List, TypedDict
+
 import numpy as np
 
 from actverse.entity import Animal, Mouse
 from actverse.utils.math import correct_angle, vector_to_degree
 
 
-def measure_physical_metrics(prediction: dict[str, list[dict]]):
+class Metadata(TypedDict):
+    origin_width: int
+    origin_height: int
+
+
+class PoseResult(TypedDict):
+    ids: List[str]
+    boxes: List[np.ndarray]
+    boxes_score: List[float]
+    smoothed_keypoints: List[np.ndarray]
+    keypoints_score: List[np.ndarray]
+    timestamp: float
+
+
+class Prediction(TypedDict):
+    metadata: Metadata
+    results: List[PoseResult]
+
+
+def measure_physical_metrics(prediction: Prediction):
     video_mice_map: list[dict[str, Mouse]] = []
     animal_ids = set()
-    image_width = prediction["metadata"]["origin_width"]
-    image_height = prediction["metadata"]["origin_height"]
+    metadata = prediction["metadata"]
+    image_width = metadata["origin_width"]
+    image_height = metadata["origin_height"]
     pose_results = prediction["results"]
     for pose_result in pose_results:
         mice_map = {}
         for index, animal_id in enumerate(pose_result["ids"]):
             mice_map[animal_id] = Mouse(
-                id=animal_id,
+                id=int(animal_id),
                 bbox=pose_result["boxes"][index],
                 bbox_score=pose_result["boxes_score"][index],
                 keypoints=pose_result["smoothed_keypoints"][index],
@@ -26,8 +48,7 @@ def measure_physical_metrics(prediction: dict[str, list[dict]]):
             animal_ids.add(animal_id)
         video_mice_map.append(mice_map)
 
-    # analysis_results: list[dict[str, any]] = []
-    metrics: dict[str, dict[str, list[any]]] = {}
+    metrics: dict[str, dict[str, list]] = {}
     for i in range(len(video_mice_map)):
         for animal_id in video_mice_map[i]:
             if i == 0 or animal_id not in video_mice_map[i - 1]:
