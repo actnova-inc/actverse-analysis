@@ -19,6 +19,8 @@ dependencies = [
     "opencv-python",
     "numpy",
     "plotly",
+    "ipywidgets",
+    "ipython",
 ]
 
 [tool.setuptools]
