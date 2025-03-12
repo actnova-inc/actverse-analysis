@@ -2,19 +2,20 @@ import numpy as np
 
 from .animal import Animal
 
-KEYPOINT_NAMES_MOUSE: dict[str, int] = {
+BODY_PART_INDEX: dict[str, int] = {
     "nose": 0,
-    "left_ear": 1,
-    "right_ear": 2,
-    "left_forepaw": 3,
-    "right_forepaw": 4,
-    "left_hindpaw": 5,
-    "right_hindpaw": 6,
-    "tail_root": 7,
-    "tail_center": 8,
-    "tail_tip": 9,
-    "body_center": 10,
+    "left ear": 1,
+    "right ear": 2,
+    "left forepaw": 3,
+    "right forepaw": 4,
+    "left hindpaw": 5,
+    "right hindpaw": 6,
+    "tail root": 7,
+    "tail center": 8,
+    "tail tip": 9,
+    "body center": 10,
 }
+
 SKELETON_MOUSE: list[list[int]] = [
     [0, 1],  # nose - left eye
     [1, 2],  # left eye - right eye
@@ -56,8 +57,11 @@ class Mouse(Animal):
     def __repr__(self):
         return f"Mouse(id={self.id})"
 
+    def get_keypoint(self, body_part: str):
+        return self.denormalize(self.keypoints[self.index_of(body_part)])
+
     def index_of(self, bodypoint: str):
-        return KEYPOINT_NAMES_MOUSE.get(bodypoint)
+        return BODY_PART_INDEX[bodypoint.lower()]
 
     def denormalize(self, point: tuple[float, float]):
         return (
@@ -83,7 +87,7 @@ class Mouse(Animal):
             if method == "mean":
                 self._centre = np.mean(self.keypoints, axis=0)
             else:
-                self._centre = self.keypoints[self.index_of("body_center")]
+                self._centre = self.keypoints[self.index_of("body center")]
         return self.denormalize(self._centre)
 
     @property
@@ -110,40 +114,40 @@ class Mouse(Animal):
 
     @property
     def left_ear(self):
-        return self.denormalize(self.keypoints[self.index_of("left_ear")])
+        return self.denormalize(self.keypoints[self.index_of("left ear")])
 
     @property
     def right_ear(self):
-        return self.denormalize(self.keypoints[self.index_of("right_ear")])
+        return self.denormalize(self.keypoints[self.index_of("right ear")])
 
     @property
     def left_forepaw(self):
-        return self.denormalize(self.keypoints[self.index_of("left_forepaw")])
+        return self.denormalize(self.keypoints[self.index_of("left forepaw")])
 
     @property
     def right_forepaw(self):
-        return self.denormalize(self.keypoints[self.index_of("right_forepaw")])
+        return self.denormalize(self.keypoints[self.index_of("right forepaw")])
 
     @property
     def left_hindpaw(self):
-        return self.denormalize(self.keypoints[self.index_of("left_hindpaw")])
+        return self.denormalize(self.keypoints[self.index_of("left hindpaw")])
 
     @property
     def right_hindpaw(self):
-        return self.denormalize(self.keypoints[self.index_of("right_hindpaw")])
+        return self.denormalize(self.keypoints[self.index_of("right hindpaw")])
 
     @property
     def tail_root(self):
-        return self.denormalize(self.keypoints[self.index_of("tail_root")])
+        return self.denormalize(self.keypoints[self.index_of("tail root")])
 
     @property
     def tail_center(self):
-        return self.denormalize(self.keypoints[self.index_of("tail_center")])
+        return self.denormalize(self.keypoints[self.index_of("tail center")])
 
     @property
     def tail_tip(self):
-        return self.denormalize(self.keypoints[self.index_of("tail_tip")])
+        return self.denormalize(self.keypoints[self.index_of("tail tip")])
 
     @property
     def body_center(self):
-        return self.denormalize(self.keypoints[self.index_of("body_center")])
+        return self.denormalize(self.keypoints[self.index_of("body center")])
