@@ -1,0 +1,45 @@
+lang: en
+title: Actverse Behavior Analysis
+section1:
+  section_title1: 1. Start
+
+section2:
+  section_title2: 2. Prepare for Analysis
+  text2_1: Please select the body parts you want to analyze.
+
+section3:
+  section_title3: 3. Analyze Behavior
+
+section4:
+  section_title4: 4. View Results
+  sub_section4_1:
+    sub_section4_1_title: Movement Metrics
+    sub_section4_1_graph:
+      distance: Distance Moved
+      distance_unit: Distance (Pixel)
+      time_unit: Time (s)
+      speed: Speed
+      speed_unit: Speed (pixel/s)
+      speed_smoothed: Speed (Smoothed)
+      speed_histogram: Speed (Histogram)
+      frequency: Frequency
+      average_speed: Average Speed
+
+  sub_section4_2:
+    sub_section4_2_title: Direction Metrics
+    sub_section4_2_graph:
+      angle: Body Angle
+      angle_unit: Angle (degree)
+      angular_speed: Angular Speed
+      angular_speed_unit: Angular Speed (degree/s)
+      angular_speed_smoothed: Angular Speed (Smoothed)
+      angular_speed_histogram: Angular Speed (Histogram)
+      angle_histogram: Body Angle (Histogram)
+
+  sub_section4_3:
+    sub_section4_3_title: Position Metrics
+    sub_section4_3_graph:
+      trajectory: Trajectory
+      heatmap: Heatmap
+      colorbar_high: High
+      colorbar_low: Low

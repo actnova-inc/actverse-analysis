@@ -1,0 +1,45 @@
+lang: ko
+title: 액트버스 행동 분석하기
+section1:
+  section_title1: 1. 시작하기
+
+section2:
+  section_title2: 2. 분석 준비하기
+  text2_1: 분석을 원하는 부위를 선택해주세요.
+
+section3:
+  section_title3: 3. 행동 분석하기
+
+section4:
+  section_title4: 4. 결과 보기
+  sub_section4_1:
+    sub_section4_1_title: 이동 지표
+    sub_section4_1_graph:
+      distance: 이동 거리
+      distance_unit: 거리 (픽셀)
+      time_unit: 시간 (초)
+      speed: 속력
+      speed_unit: 속력 (픽셀/초)
+      speed_smoothed: 속력 (단순화)
+      speed_histogram: 속력 (히스토그램)
+      frequency: 빈도
+      average_speed: 평균 속력
+
+  sub_section4_2:
+    sub_section4_2_title: 방향 지표
+    sub_section4_2_graph:
+      angle: 몸 각도
+      angle_unit: 각도 (도)
+      angular_speed: 각속도
+      angular_speed_unit: 각속도 (도/초)
+      angular_speed_smoothed: 각속도 (단순화)
+      angular_speed_histogram: 각속도 (히스토그램)
+      angle_histogram: 몸 각도 (히스토그램)
+
+  sub_section4_3:
+    sub_section4_3_title: 위치 지표
+    sub_section4_3_graph:
+      trajectory: 궤적
+      heatmap: 히트맵
+      colorbar_high: 높음
+      colorbar_low: 낮음

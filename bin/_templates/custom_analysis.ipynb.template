@@ -4,14 +4,14 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Actverse Behavior Analysis"
+    "# $title"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## 1. Start"
+    "## $section_title1"
    ]
   },
   {
@@ -27,7 +27,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## 2. Prepare for Analysis"
+    "## $section_title2"
    ]
   },
   {
@@ -52,7 +52,7 @@
     "from actverse.utils.notebook import display_body_parts_checkbox\n",
     "\n",
     "checkboxes = display_body_parts_checkbox(\n",
-    "    description=\"Please select the body parts you want to analyze.\", lang=\"en\"\n",
+    "    description=\"$text2_1\", lang=\"$lang\"\n",
     ")"
    ]
   },
@@ -73,7 +73,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## 3. Analyze Behavior"
+    "## $section_title3"
    ]
   },
   {
@@ -91,14 +91,14 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## 4. View Results"
+    "## $section_title4"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Movement Metrics"
+    "$sub_section4_1_title"
    ]
   },
   {
@@ -134,10 +134,10 @@
     "    y_1 = metrics[mouse_id][body_part][\"cumulative_distance_change\"]\n",
     "    go_1 = go.Scatter(x=x, y=y_1, mode=\"lines\", name=str(body_part))\n",
     "    fig1.add_trace(go_1, row=1, col=i + 1)\n",
-    "    fig1.update_xaxes(title_text=\"Time (s)\", row=1, col=i + 1)\n",
-    "    fig1.update_yaxes(title_text=\"Distance (Pixel)\", row=1, col=i + 1)\n",
+    "    fig1.update_xaxes(title_text=\"$time_unit\", row=1, col=i + 1)\n",
+    "    fig1.update_yaxes(title_text=\"$distance_unit\", row=1, col=i + 1)\n",
     "fig1.update_layout(\n",
-    "    title=\"Distance Moved\", height=unit_height, width=unit_width * len(body_parts)\n",
+    "    title=\"$distance\", height=unit_height, width=unit_width * len(body_parts)\n",
     ")\n",
     "fig1.show()\n",
     "\n",
@@ -148,10 +148,10 @@
     "    position = metrics[mouse_id][body_part][\"speed\"]\n",
     "    go_2 = go.Scatter(x=x, y=position, mode=\"lines\", name=str(body_part))\n",
     "    fig2.add_trace(go_2, row=1, col=i + 1)\n",
-    "    fig2.update_xaxes(title_text=\"Time (s)\", row=1, col=i + 1)\n",
-    "    fig2.update_yaxes(title_text=\"Speed (pixel/s)\", row=1, col=i + 1)\n",
+    "    fig2.update_xaxes(title_text=\"$time_unit\", row=1, col=i + 1)\n",
+    "    fig2.update_yaxes(title_text=\"$speed_unit\", row=1, col=i + 1)\n",
     "fig2.update_layout(\n",
-    "    title=\"Speed\", height=unit_height, width=unit_width * len(body_parts)\n",
+    "    title=\"$speed\", height=unit_height, width=unit_width * len(body_parts)\n",
     ")\n",
     "fig2.show()\n",
     "\n",
@@ -162,10 +162,10 @@
     "    y_3 = moving_average(metrics[mouse_id][body_part][\"speed\"], 25)\n",
     "    go_3 = go.Scatter(x=x, y=y_3, mode=\"lines\", name=str(body_part))\n",
     "    fig3.add_trace(go_3, row=1, col=i + 1)\n",
-    "    fig3.update_xaxes(title_text=\"Time (s)\", row=1, col=i + 1)\n",
-    "    fig3.update_yaxes(title_text=\"Speed (pixel/s)\", row=1, col=i + 1)\n",
+    "    fig3.update_xaxes(title_text=\"$time_unit\", row=1, col=i + 1)\n",
+    "    fig3.update_yaxes(title_text=\"$speed_unit\", row=1, col=i + 1)\n",
     "fig3.update_layout(\n",
-    "    title=\"Speed (Smoothed)\", height=unit_height, width=unit_width * len(body_parts)\n",
+    "    title=\"$speed_smoothed\", height=unit_height, width=unit_width * len(body_parts)\n",
     ")\n",
     "fig3.show()\n",
     "\n",
@@ -176,10 +176,10 @@
     "    y_4 = metrics[mouse_id][body_part][\"speed\"]\n",
     "    go_4 = go.Histogram(x=y_4, xbins=dict(size=1), name=str(body_part))\n",
     "    fig4.add_trace(go_4, row=1, col=i + 1)\n",
-    "    fig4.update_xaxes(title_text=\"Speed (pixel/s)\", row=1, col=i + 1)\n",
-    "    fig4.update_yaxes(title_text=\"Frequency\", row=1, col=i + 1)\n",
+    "    fig4.update_xaxes(title_text=\"$speed_unit\", row=1, col=i + 1)\n",
+    "    fig4.update_yaxes(title_text=\"$frequency\", row=1, col=i + 1)\n",
     "fig4.update_layout(\n",
-    "    title=\"Speed (Histogram)\", height=unit_height, width=unit_width * len(body_parts)\n",
+    "    title=\"$speed_histogram\", height=unit_height, width=unit_width * len(body_parts)\n",
     ")\n",
     "fig4.show()\n",
     "\n",
@@ -190,10 +190,10 @@
     "    y_5 = metrics[mouse_id][body_part][\"average_speed\"]\n",
     "    go_5 = go.Scatter(x=x, y=y_5, mode=\"lines\", name=str(body_part))\n",
     "    fig5.add_trace(go_5, row=1, col=i + 1)\n",
-    "    fig5.update_xaxes(title_text=\"Time (s)\", row=1, col=i + 1)\n",
-    "    fig5.update_yaxes(title_text=\"Speed (pixel/s)\", row=1, col=i + 1)\n",
+    "    fig5.update_xaxes(title_text=\"$time_unit\", row=1, col=i + 1)\n",
+    "    fig5.update_yaxes(title_text=\"$speed_unit\", row=1, col=i + 1)\n",
     "fig5.update_layout(\n",
-    "    title=\"Average Speed\", height=unit_height, width=unit_width * len(body_parts)\n",
+    "    title=\"$average_speed\", height=unit_height, width=unit_width * len(body_parts)\n",
     ")\n",
     "fig5.show()"
    ]
@@ -202,7 +202,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Direction Metrics"
+    "$sub_section4_2_title"
    ]
   },
   {
@@ -219,11 +219,11 @@
     "    rows=n_rows,\n",
     "    cols=n_cols,\n",
     "    subplot_titles=[\n",
-    "        \"Body Angle\",\n",
-    "        \"Angular Speed\",\n",
-    "        \"Angular Speed (Smoothed)\",\n",
-    "        \"Body Angle (Histogram)\",\n",
-    "        \"Angular Speed (Histogram)\",\n",
+    "        \"$angle\",\n",
+    "        \"$angular_speed\",\n",
+    "        \"$angular_speed_smoothed\",\n",
+    "        \"$angle_histogram\",\n",
+    "        \"$angular_speed_histogram\",\n",
     "    ],\n",
     "    vertical_spacing=0.1,\n",
     "    horizontal_spacing=0.1,\n",
@@ -233,40 +233,40 @@
     "\n",
     "# first subplot\n",
     "y_1 = metrics[mouse_id][\"body center\"][\"angle\"]\n",
-    "go_1 = go.Scatter(x=x, y=y_1, mode=\"lines\", name=\"Body Angle\")\n",
+    "go_1 = go.Scatter(x=x, y=y_1, mode=\"lines\", name=\"$angle\")\n",
     "fig.add_trace(go_1, row=1, col=1)\n",
-    "fig.update_xaxes(title_text=\"Time (s)\", row=1, col=1)\n",
-    "fig.update_yaxes(title_text=\"Angle (degree)\", row=1, col=1)\n",
+    "fig.update_xaxes(title_text=\"$time_unit\", row=1, col=1)\n",
+    "fig.update_yaxes(title_text=\"$angle_unit\", row=1, col=1)\n",
     "\n",
     "# second subplot\n",
     "position = metrics[mouse_id][\"body center\"][\"angular_speed\"]\n",
-    "go_2 = go.Scatter(x=x, y=position, mode=\"lines\", name=\"Angular Speed\")\n",
+    "go_2 = go.Scatter(x=x, y=position, mode=\"lines\", name=\"$angular_speed\")\n",
     "fig.add_trace(go_2, row=1, col=2)\n",
-    "fig.update_xaxes(title_text=\"Time (s)\", row=1, col=2)\n",
-    "fig.update_yaxes(title_text=\"Angular Speed (degree/s)\", row=1, col=2)\n",
+    "fig.update_xaxes(title_text=\"$time_unit\", row=1, col=2)\n",
+    "fig.update_yaxes(title_text=\"$angular_speed_unit\", row=1, col=2)\n",
     "\n",
     "# third subplot\n",
     "y_3 = moving_average(metrics[mouse_id][\"body center\"][\"angular_speed\"], 25)\n",
-    "go_3 = go.Scatter(x=x, y=y_3, mode=\"lines\", name=\"Angular Speed (Smoothed)\")\n",
+    "go_3 = go.Scatter(x=x, y=y_3, mode=\"lines\", name=\"$angular_speed_smoothed\")\n",
     "fig.add_trace(go_3, row=2, col=1)\n",
-    "fig.update_xaxes(title_text=\"Time (s)\", row=2, col=1)\n",
-    "fig.update_yaxes(title_text=\"Angular Speed (degree/s)\", row=2, col=1)\n",
+    "fig.update_xaxes(title_text=\"$time_unit\", row=2, col=1)\n",
+    "fig.update_yaxes(title_text=\"$angular_speed_unit\", row=2, col=1)\n",
     "\n",
     "# fourth subplot\n",
     "y_4 = metrics[mouse_id][\"body center\"][\"angle\"]\n",
-    "go_4 = go.Histogram(x=y_4, xbins=dict(size=1), name=\"Body Angle (Histogram)\")\n",
+    "go_4 = go.Histogram(x=y_4, xbins=dict(size=1), name=\"$angle_histogram\")\n",
     "fig.add_trace(go_4, row=2, col=2)\n",
-    "fig.update_xaxes(title_text=\"Angle (degree)\", row=2, col=2)\n",
-    "fig.update_yaxes(title_text=\"Frequency\", row=2, col=2)\n",
+    "fig.update_xaxes(title_text=\"$angle_unit\", row=2, col=2)\n",
+    "fig.update_yaxes(title_text=\"$frequency\", row=2, col=2)\n",
     "\n",
     "# fifth subplot\n",
     "y_5 = metrics[mouse_id][\"body center\"][\"angular_speed\"]\n",
-    "go_5 = go.Histogram(x=y_5, xbins=dict(size=1), name=\"Angular Speed (Histogram)\")\n",
+    "go_5 = go.Histogram(x=y_5, xbins=dict(size=1), name=\"$angular_speed_histogram\")\n",
     "fig.add_trace(go_5, row=3, col=1)\n",
-    "fig.update_xaxes(title_text=\"Angular Speed (degree/s)\", row=3, col=1)\n",
-    "fig.update_yaxes(title_text=\"Frequency\", row=3, col=1)\n",
+    "fig.update_xaxes(title_text=\"$angular_speed_unit\", row=3, col=1)\n",
+    "fig.update_yaxes(title_text=\"$frequency\", row=3, col=1)\n",
     "\n",
-    "fig.update_layout(title=\"Direction Metrics\", height=1000, width=1000, showlegend=False)\n",
+    "fig.update_layout(title=\"$sub_section4_2_title\", height=1000, width=1000, showlegend=False)\n",
     "fig.show()"
    ]
   },
@@ -274,7 +274,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Position Metrics"
+    "$sub_section4_3_title"
    ]
   },
   {
@@ -317,7 +317,7 @@
     "    fig1.update_xaxes(range=[0, img_width], row=1, col=i + 1)\n",
     "    fig1.update_yaxes(range=[0, img_height], row=1, col=i + 1)\n",
     "fig1.update_layout(\n",
-    "    title=\"Trajectory\",\n",
+    "    title=\"$trajectory\",\n",
     "    height=unit_height,\n",
     "    width=unit_width * len(body_parts),\n",
     "    showlegend=False,\n",
@@ -338,14 +338,14 @@
     "    go_2.colorbar.update(\n",
     "        tickmode=\"array\",\n",
     "        tickvals=[histgram_2d.min(), histgram_2d.max()],\n",
-    "        ticktext=[\"Low\", \"High\"],\n",
+    "        ticktext=[\"$colorbar_low\", \"$colorbar_high\"],\n",
     "    )\n",
     "    fig2.add_trace(go_2, row=1, col=i + 1)\n",
     "    fig2.update_xaxes(range=[0, img_width], row=1, col=i + 1)\n",
     "    fig2.update_yaxes(range=[0, img_height], row=1, col=i + 1)\n",
     "\n",
     "fig2.update_layout(\n",
-    "    title=\"Heatmap\",\n",
+    "    title=\"$heatmap\",\n",
     "    height=unit_height,\n",
     "    width=unit_width * len(body_parts),\n",
     ")\n",
