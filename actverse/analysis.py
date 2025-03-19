@@ -2,7 +2,7 @@ from typing import List, TypedDict
 
 import numpy as np
 
-from actverse.entity import Animal, Mouse
+from actverse.entity import Animal, BodyPart, Mouse
 from actverse.utils.math import correct_angle, vector_to_degree
 
 
@@ -87,7 +87,7 @@ def update_metric(metric: Metric, animal: Animal, previous: Animal, body_part: s
 
 
 def measure_physical_metrics(
-    prediction: Prediction, body_parts: list[str]
+    prediction: Prediction, body_parts: list[BodyPart]
 ) -> list[dict[str, dict[str, Metric]]]:
     video_mice_map: list[dict[str, Mouse]] = []
     animal_ids = set()

@@ -1,20 +1,33 @@
 import numpy as np
 
-from .animal import Animal
+from .animal import Animal, BodyPart
 
-BODY_PART_INDEX: dict[str, int] = {
-    "nose": 0,
-    "left ear": 1,
-    "right ear": 2,
-    "left forepaw": 3,
-    "right forepaw": 4,
-    "left hindpaw": 5,
-    "right hindpaw": 6,
-    "tail root": 7,
-    "tail center": 8,
-    "tail tip": 9,
-    "body center": 10,
+NOSE = BodyPart("nose", "코")
+LEFT_EAR = BodyPart("left ear", "왼쪽 귀")
+RIGHT_EAR = BodyPart("right ear", "오른쪽 귀")
+LEFT_FOREPAW = BodyPart("left forepaw", "왼쪽 앞발")
+RIGHT_FOREPAW = BodyPart("right forepaw", "오른쪽 앞발")
+LEFT_HINDPAW = BodyPart("left hindpaw", "왼쪽 뒷발")
+RIGHT_HINDPAW = BodyPart("right hindpaw", "오른쪽 뒷발")
+TAIL_ROOT = BodyPart("tail root", "꼬리 시작")
+TAIL_CENTER = BodyPart("tail center", "꼬리 중간")
+TAIL_TIP = BodyPart("tail tip", "꼬리 끝")
+BODY_CENTER = BodyPart("body center", "몸 중앙")
+
+BODY_PART_INDEX: dict[BodyPart, int] = {
+    NOSE: 0,
+    LEFT_EAR: 1,
+    RIGHT_EAR: 2,
+    LEFT_FOREPAW: 3,
+    RIGHT_FOREPAW: 4,
+    LEFT_HINDPAW: 5,
+    RIGHT_HINDPAW: 6,
+    TAIL_ROOT: 7,
+    TAIL_CENTER: 8,
+    TAIL_TIP: 9,
+    BODY_CENTER: 10,
 }
+
 
 SKELETON_MOUSE: list[list[int]] = [
     [0, 1],  # nose - left eye

@@ -1,6 +1,35 @@
-from typing import Union
+from typing import Literal, Union
 
 import numpy as np
+
+
+class BodyPart:
+    def __init__(self, en, ko, lang: Literal["en", "ko"] = "en"):
+        self._en = en
+        self._ko = ko
+        self._lang = lang
+
+    def set_lang(self, lang):
+        self._lang = lang
+
+    def __str__(self):
+        return self._ko if self._lang == "ko" else self._en
+
+    def __repr__(self):
+        return f"BodyPart('{self._en}')"
+
+    def __eq__(self, other):
+        if isinstance(other, BodyPart):
+            return self._en == other._en
+        elif isinstance(other, str):
+            return self._en == other
+        return False
+
+    def __hash__(self):
+        return hash(self._en)
+
+    def __getattr__(self, attr):
+        return getattr(self._en, attr)
 
 
 class Animal:

@@ -1,18 +1,20 @@
 import ipywidgets as widgets
 from IPython.display import display
 
+from actverse.entity import BodyPart
 from actverse.entity.mouse import BODY_PART_INDEX as MOUSE_BODY_PART_INDEX
 
 
 def display_body_parts_checkbox(
-    description: str = "Select the body parts to analyze",
+    description: str = "Select the body parts to analyze", lang: str = "en"
 ):
     body_parts = MOUSE_BODY_PART_INDEX.keys()
 
     label = widgets.Label(description)
-    checkboxes = [
-        widgets.Checkbox(value=False, description=part) for part in body_parts
-    ]
+    checkboxes = []
+    for body_part in body_parts:
+        body_part.set_lang(lang)
+        checkboxes.append(widgets.Checkbox(value=False, description=str(body_part)))
     checkboxes[-1].disabled = True
     checkboxes[-1].value = True
 
@@ -23,9 +25,11 @@ def display_body_parts_checkbox(
     return checkboxes
 
 
-def get_checked(checkboxes: list[widgets.Checkbox]) -> list[str]:
+def get_checked(checkboxes: list[widgets.Checkbox]) -> list[BodyPart]:
+    body_parts = MOUSE_BODY_PART_INDEX.keys()
+
     checked = []
-    for checkbox in checkboxes:
+    for checkbox, body_part in zip(checkboxes, body_parts):
         if checkbox.value:
-            checked.append(checkbox.description)
+            checked.append(body_part)
     return checked
