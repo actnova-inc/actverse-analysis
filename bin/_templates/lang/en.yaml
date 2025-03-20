@@ -1,10 +1,10 @@
 lang: en
 title: Actverse Behavior Analysis
 section1:
-  section_title1: 1. Start
+  section_title1: 1. Set Up for Analysis
 
 section2:
-  section_title2: 2. Prepare for Analysis
+  section_title2: 2. Start
   text2_1: Please select the body parts you want to analyze.
 
 section3:
@@ -16,7 +16,7 @@ section4:
     sub_section4_1_title: Movement Metrics
     sub_section4_1_graph:
       distance: Distance Moved
-      distance_unit: Distance (Pixel)
+      distance_unit: Distance (pixel)
       time_unit: Time (s)
       speed: Speed
       speed_unit: Speed (pixel/s)
