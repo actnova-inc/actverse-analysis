@@ -15,7 +15,7 @@ def display_body_parts_checkbox(
     for body_part in body_parts:
         body_part.set_lang(lang)
         checkboxes.append(widgets.Checkbox(value=False, description=str(body_part)))
-    checkboxes[-1].disabled = True
+    checkboxes[-1].disabled = False
     checkboxes[-1].value = True
 
     display(
