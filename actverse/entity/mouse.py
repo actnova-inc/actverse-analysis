@@ -91,7 +91,9 @@ class Mouse(Animal):
     @property
     def neck(self):
         if self._neck is None:
-            self._neck = (self.left_ear + self.right_ear) / 2
+            left = self.keypoints[self.index_of("left ear")]
+            right = self.keypoints[self.index_of("right ear")]
+            self._neck = (left + right) / 2
         return self.denormalize(self._neck)
 
     @property
