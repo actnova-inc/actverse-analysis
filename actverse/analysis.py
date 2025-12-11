@@ -3,7 +3,7 @@ from typing import List, TypedDict
 import numpy as np
 
 from actverse.entity import Animal, BodyPart, Mouse
-from actverse.utils.math import correct_angle, vector_to_degree
+from actverse.utils.math import vector_to_degree, wrap_angle_180
 
 
 class Metadata(TypedDict):
@@ -47,7 +47,7 @@ def create_metric(animal: Animal, body_part: str) -> Metric:
     metric["speed"] = [0]
     metric["average_speed"] = [0]
     if body_part == "body center":
-        metric["angle"] = [calc_body_angle(animal)]
+        metric["angle"] = [wrap_angle_180(calc_body_angle(animal))]
         metric["angle_change"] = [0]
         metric["cumulative_angle_change"] = [0]
         metric["angular_speed"] = [0]
@@ -72,12 +72,12 @@ def update_metric(metric: Metric, animal: Animal, previous: Animal, body_part: s
     metric["average_speed"].append(average_speed)
 
     if body_part == "body center":
-        angle = calc_body_angle(animal)
-        angle = correct_angle(angle, metric["angle"][-1])
-        angular_speed = calc_angular_speed(
-            angle, metric["angle"][-1], animal.timestamp - previous.timestamp
-        )
-        angle_change = angle - metric["angle"][-1]
+        raw_angle = calc_body_angle(animal)
+        angle = wrap_angle_180(raw_angle)
+        prev_angle = metric["angle"][-1]
+        dt = animal.timestamp - previous.timestamp
+        angular_speed = calc_angular_speed(angle, prev_angle, dt)
+        angle_change = ((angle - prev_angle + 180) % 360) - 180
         cumulative_angle_change = metric["cumulative_angle_change"][-1] + angle_change
 
         metric["angle"].append(angle)

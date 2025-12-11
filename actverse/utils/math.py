@@ -14,6 +14,11 @@ def correct_angle(current_angle, previous_angle):
     return current_angle
 
 
+def wrap_angle_180(angle: float) -> float:
+    """Wrap angle to [-180, 180] range"""
+    return ((angle + 180) % 360) - 180
+
+
 def moving_average(data, window_size):
     kernel = np.ones(window_size) / window_size
     return np.convolve(data, kernel, mode="same")
