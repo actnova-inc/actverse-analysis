@@ -39,6 +39,7 @@ class Metric(TypedDict):
 
 
 def create_metric(animal: Animal, body_part: str) -> Metric:
+    """Create initial metric entry for a body part at the first detection timestamp."""
     metric: Metric = {}
     metric["timestamp"] = [animal.timestamp]
     metric["position"] = [animal.get_keypoint(body_part)]
@@ -55,6 +56,7 @@ def create_metric(animal: Animal, body_part: str) -> Metric:
 
 
 def update_metric(metric: Metric, animal: Animal, previous: Animal, body_part: str):
+    """Append metric values using delta between current and previous observations."""
     current_position = animal.get_keypoint(body_part)
     previous_position = previous.get_keypoint(body_part)
     distance_change = np.linalg.norm(current_position - previous_position)
@@ -62,7 +64,9 @@ def update_metric(metric: Metric, animal: Animal, previous: Animal, body_part: s
         metric["cumulative_distance_change"][-1] + distance_change
     )
     speed = distance_change / (animal.timestamp - previous.timestamp)
-    average_speed = cumulative_distance_change / animal.timestamp
+    first_ts = metric["timestamp"][0]
+    elapsed_since_first_detection = max(1e-9, animal.timestamp - first_ts)
+    average_speed = cumulative_distance_change / elapsed_since_first_detection
 
     metric["timestamp"].append(animal.timestamp)
     metric["position"].append(current_position)
@@ -86,17 +90,13 @@ def update_metric(metric: Metric, animal: Animal, previous: Animal, body_part: s
         metric["angular_speed"].append(angular_speed)
 
 
-def measure_physical_metrics(
-    prediction: Prediction, body_parts: list[BodyPart]
-) -> list[dict[str, dict[str, Metric]]]:
+def _build_video_mice_map(
+    prediction: Prediction, image_height: int, image_width: int
+) -> list[dict[str, Mouse]]:
+    """Transform raw pose results into a list of frame-wise maps: id -> Mouse."""
     video_mice_map: list[dict[str, Mouse]] = []
-    animal_ids = set()
-    metadata = prediction["metadata"]
-    image_width = metadata["origin_width"]
-    image_height = metadata["origin_height"]
-    pose_results = prediction["results"]
-    for pose_result in pose_results:
-        mice_map = {}
+    for pose_result in prediction["results"]:
+        mice_map: dict[str, Mouse] = {}
         for index, animal_id in enumerate(pose_result["ids"]):
             mice_map[animal_id] = Mouse(
                 id=int(animal_id),
@@ -108,28 +108,74 @@ def measure_physical_metrics(
                 origin_shape=(image_height, image_width),
                 normalized=True,
             )
-            animal_ids.add(animal_id)
         video_mice_map.append(mice_map)
+    return video_mice_map
+
+
+def _ensure_metrics_initialized_for_id(
+    metrics: dict[str, dict[str, Metric]],
+    animal_id: str,
+    current_animal: Mouse,
+    body_parts: list[BodyPart],
+) -> None:
+    """Ensure metric containers exist for an id, initializing on first detection."""
+    if animal_id not in metrics:
+        metrics[animal_id] = {}
+    for body_part in body_parts:
+        if body_part not in metrics[animal_id]:
+            metrics[animal_id][body_part] = create_metric(current_animal, body_part)
+
+
+def _accumulate_metrics_from_previous(
+    metrics: dict[str, dict[str, Metric]],
+    animal_id: str,
+    current_animal: Mouse,
+    previous_animal: Mouse,
+    body_parts: list[BodyPart],
+) -> None:
+    """Accumulate metric values using the last seen observation for the same id."""
+    for body_part in body_parts:
+        metric: Metric = metrics[animal_id][body_part]
+        update_metric(metric, current_animal, previous_animal, body_part)
+
+
+def measure_physical_metrics(
+    prediction: Prediction, body_parts: list[BodyPart]
+) -> list[dict[str, dict[str, Metric]]]:
+    """Compute per-id physical metrics, bridging re-appearances without interpolation.
+
+    - Positions/angles are recorded only at observed timestamps.
+    - Speed/angular speed use delta and dt across gaps when an id re-appears.
+    """
+    animal_ids = set()
+    metadata = prediction["metadata"]
+    image_width = metadata["origin_width"]
+    image_height = metadata["origin_height"]
+    video_mice_map = _build_video_mice_map(prediction, image_height, image_width)
+    # collect unique ids
+    for frame_map in video_mice_map:
+        for animal_id in frame_map:
+            animal_ids.add(animal_id)
 
     metrics: dict[str, dict[str, Metric]] = {}
-    for i in range(len(video_mice_map)):  # for each frame
-        for animal_id in video_mice_map[i]:  # for each animal
-            if animal_id not in metrics:
-                metrics[animal_id] = {}
-            for body_part in body_parts:  # for each body part
-                if i == 0 or animal_id not in video_mice_map[i - 1]:
-                    current_animal = video_mice_map[i][animal_id]
-                    metric = create_metric(current_animal, body_part)
-                    metrics[animal_id][body_part] = metric
-                else:
-                    metric: Metric = metrics[animal_id][body_part]
-                    current_animal = video_mice_map[i][animal_id]
-                    previous_animal = video_mice_map[i - 1][animal_id]
-                    update_metric(metric, current_animal, previous_animal, body_part)
+    last_seen: dict[str, Mouse] = {}
+    for mice_map in video_mice_map:
+        for animal_id, current_animal in mice_map.items():
+            if animal_id not in last_seen:
+                _ensure_metrics_initialized_for_id(
+                    metrics, animal_id, current_animal, body_parts
+                )
+            else:
+                previous_animal = last_seen[animal_id]
+                _accumulate_metrics_from_previous(
+                    metrics, animal_id, current_animal, previous_animal, body_parts
+                )
+            last_seen[animal_id] = current_animal
     return metrics, sorted(list(animal_ids))
 
 
 def calc_angular_speed(current_angle, previous_angle, time_interval):
+    """Compute angular velocity with wrap-around handling at +/-180 degrees."""
     if current_angle - previous_angle > 180:  # np.pi
         previous_angle += 360  # 2 * np.pi
     elif current_angle - previous_angle < -180:  # -np.pi:
