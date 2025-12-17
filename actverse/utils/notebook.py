@@ -14,12 +14,15 @@ def display_body_parts_checkbox(
     body_parts = MOUSE_BODY_PART_INDEX.keys()
 
     label = widgets.Label(description)
-    checkboxes = _cached_checkboxes or []
-    for body_part in body_parts:
-        body_part.set_lang(lang)
-        checkboxes.append(widgets.Checkbox(value=False, description=str(body_part)))
-    checkboxes[-1].disabled = False
-    checkboxes[-1].value = True
+    if _cached_checkboxes is None:
+        checkboxes = []
+        for body_part in body_parts:
+            body_part.set_lang(lang)
+            checkboxes.append(widgets.Checkbox(value=False, description=str(body_part)))
+        checkboxes[-1].disabled = False
+        checkboxes[-1].value = True
+    else:
+        checkboxes = _cached_checkboxes
 
     display(
         label,
