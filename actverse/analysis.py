@@ -15,6 +15,7 @@ class PoseResult(TypedDict):
     ids: List[str]
     boxes: List[np.ndarray]
     boxes_score: List[float]
+    keypoints: List[np.ndarray]
     smoothed_keypoints: List[np.ndarray]
     keypoints_score: List[np.ndarray]
     timestamp: float
@@ -98,12 +99,33 @@ def _build_video_mice_map(
     for pose_result in prediction["results"]:
         mice_map: dict[str, Mouse] = {}
         for index, animal_id in enumerate(pose_result["ids"]):
+            boxes = pose_result.get("boxes", []) or []
+            boxes_score = pose_result.get("boxes_score", []) or []
+            keypoints_score = pose_result.get("keypoints_score", []) or []
+
+            smoothed = pose_result.get("smoothed_keypoints", None)
+            raw = pose_result.get("keypoints", None)
+
+            keypoints = None
+            if isinstance(smoothed, list) and index < len(smoothed):
+                keypoints = smoothed[index]
+            elif isinstance(raw, list) and index < len(raw):
+                keypoints = raw[index]
+
+            if (
+                index >= len(boxes)
+                or index >= len(boxes_score)
+                or index >= len(keypoints_score)
+                or keypoints is None
+            ):
+                continue
+
             mice_map[animal_id] = Mouse(
                 id=int(animal_id),
-                bbox=pose_result["boxes"][index],
-                bbox_score=pose_result["boxes_score"][index],
-                keypoints=pose_result["smoothed_keypoints"][index],
-                keypoints_score=pose_result["keypoints_score"][index],
+                bbox=boxes[index],
+                bbox_score=boxes_score[index],
+                keypoints=keypoints,
+                keypoints_score=keypoints_score[index],
                 timestamp=pose_result["timestamp"],
                 origin_shape=(image_height, image_width),
                 normalized=True,
