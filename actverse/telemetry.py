@@ -58,17 +58,20 @@ MAX_STDOUT = 2 * 1024
 MAX_CALLS_PER_CELL = 20
 SEND_TIMEOUT_S = 3.0
 
-# 템플릿 원본 셀 해시 → 첫 코드 줄. bin/_templates/build.py 가
+# 템플릿 원본 셀 해시 → 그 셀의 줄 지문 목록. bin/_templates/build.py 가
 # actverse/_template_hashes.py 로 생성한다. ko/en 둘의 해시를 모두 담는다.
-# 해시 일치 → ``original``, 첫 줄만 일치 → ``modified``, 둘 다 아니면 ``new``.
-# 목록이 비어 있으면 ``unknown``.
-TEMPLATE_CELL_HASHES: dict[str, str] = {}
+# 해시 일치 → ``original``, 어느 템플릿 셀과 줄 지문이 충분히 겹치면 → ``modified``,
+# 아니면 ``new``. 목록이 비어 있으면 ``unknown``.
+TEMPLATE_CELL_HASHES: dict[str, list] = {}
 try:
     from ._template_hashes import TEMPLATE_CELL_HASHES as _gen  # type: ignore
 
     TEMPLATE_CELL_HASHES.update(_gen)
 except Exception:  # pragma: no cover
     pass
+
+# 사용자가 고친 셀로 인정할 최소 줄 겹침 비율 (Jaccard). 0.5 = 절반 이상이 원본 줄.
+MODIFIED_MIN_SIMILARITY = 0.5
 
 
 class _State:
@@ -345,18 +348,33 @@ def _classify(raw: str, cell_hash: str) -> str:
         return "unknown"
     if cell_hash in TEMPLATE_CELL_HASHES:
         return "original"
-    first = _first_code_line(raw)
-    if first and first in set(TEMPLATE_CELL_HASHES.values()):
-        return "modified"
-    return "new"
+    mine = set(line_fingerprints(raw))
+    if not mine:
+        return "new"
+    best = 0.0
+    for fps in TEMPLATE_CELL_HASHES.values():
+        theirs = set(fps or [])
+        if not theirs:
+            continue
+        inter = len(mine & theirs)
+        if inter == 0:
+            continue
+        best = max(best, inter / len(mine | theirs))
+    return "modified" if best >= MODIFIED_MIN_SIMILARITY else "new"
 
 
-def _first_code_line(raw: str) -> str:
-    for line in raw.splitlines():
+def line_fingerprints(raw: str) -> list:
+    """셀의 의미 있는 줄(빈 줄·주석 제외)마다 짧은 지문. build.py 와 공유.
+
+    ``normalize_source`` 를 거치므로 서버가 치환하는 줄(id·json_path)은 값과
+    무관하게 같은 지문이 된다."""
+    out = []
+    for line in normalize_source(raw).split("\n"):
         s = line.strip()
-        if s and not s.startswith("#"):
-            return s
-    return ""
+        if not s or s.startswith("#"):
+            continue
+        out.append(hashlib.sha1(s.encode("utf-8")).hexdigest()[:12])
+    return out
 
 
 _SERVER_SUBSTITUTED_PREFIXES = ("ACTVERSE_ANALYSIS_ID", "ACTVERSE_VIDEO_ID", "json_path")

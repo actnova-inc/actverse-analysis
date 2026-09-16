@@ -9,7 +9,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from actverse.telemetry import normalize_source  # noqa: E402
+from actverse.telemetry import line_fingerprints, normalize_source  # noqa: E402
 
 
 def flatten_yaml(lang_yaml):
@@ -45,16 +45,8 @@ def create_notebook(lang, texts) -> Path:
     return output_path
 
 
-def _first_code_line(raw: str) -> str:
-    for line in raw.splitlines():
-        s = line.strip()
-        if s and not s.startswith("#"):
-            return s
-    return ""
-
-
 def collect_cell_hashes(notebook_paths) -> dict:
-    """ACT-5939: 빌드된 노트북의 코드 셀 해시 → 첫 코드 줄.
+    """ACT-5939: 빌드된 노트북의 코드 셀 해시 → 줄 지문 목록.
 
     actverse.telemetry 가 사용자 실행 셀을 original / modified / new 로
     분류할 때 쓴다. 해시는 telemetry.normalize_source 와 같은 정규화를 거친다.
@@ -69,7 +61,7 @@ def collect_cell_hashes(notebook_paths) -> dict:
                 continue
             src = "".join(cell.get("source", []))
             h = hashlib.sha256(normalize_source(src).encode("utf-8")).hexdigest()
-            hashes[h] = _first_code_line(src)
+            hashes[h] = line_fingerprints(src)
     return hashes
 
 
@@ -78,14 +70,14 @@ def write_template_hashes(hashes: dict):
     lines = [
         '"""자동 생성 — bin/_templates/build.py 가 만든다. 직접 고치지 말 것.',
         "",
-        "템플릿 코드 셀의 정규화 해시 → 첫 코드 줄. actverse.telemetry 가 사용자",
+        "템플릿 코드 셀의 정규화 해시 → 줄 지문 목록. actverse.telemetry 가 사용자",
         "실행 셀을 original / modified / new 로 분류할 때 참조한다 (ACT-5939).",
         '"""',
         "",
         "TEMPLATE_CELL_HASHES = {",
     ]
-    for h, first in sorted(hashes.items()):
-        lines.append(f"    {h!r}: {first!r},")
+    for h, fps in sorted(hashes.items()):
+        lines.append(f"    {h!r}: {fps!r},")
     lines.append("}")
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return out

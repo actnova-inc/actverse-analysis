@@ -36,11 +36,19 @@ def _start_server():
     return srv
 
 
-def _wait(n, timeout=5.0):
+def _wait(n=None, timeout=5.0):
+    """n 이 None 이면 '이전 호출 이후 새 이벤트 1건' 을 기다린다."""
+    global _SEEN
+    target = (_SEEN + 1) if n is None else n
     t0 = time.time()
-    while len(RECEIVED) < n and time.time() - t0 < timeout:
+    while len(RECEIVED) < target and time.time() - t0 < timeout:
         time.sleep(0.05)
-    return len(RECEIVED) >= n
+    ok = len(RECEIVED) >= target
+    _SEEN = len(RECEIVED)
+    return ok
+
+
+_SEEN = 0
 
 
 def _fresh_shell():
@@ -91,7 +99,7 @@ def _run_all(print):
     )
     r = ip.run_cell(store_history=True, raw_cell=cell2)
     assert r.success, r.error_in_exec
-    assert _wait(1), "no event for cell2"
+    assert _wait(), "no event for cell2"
     ev = RECEIVED[-1]["body"]
     assert RECEIVED[-1]["path"] == "/api/v2/analyses/an_test_123/colab-events", RECEIVED[-1]["path"]
     assert ev["analysis_id"] == "an_test_123" and ev["video_id"] == "vid_test_456"
@@ -110,7 +118,7 @@ def _run_all(print):
     Path("/tmp/actverse_test_pred.json").write_text(json.dumps({"metadata": {"origin_width": 640, "origin_height": 480}, "results": []}))
     r = ip.run_cell(store_history=True, raw_cell=cell2_pure)
     assert r.success, r.error_in_exec
-    assert _wait(2)
+    assert _wait()
     ev = RECEIVED[-1]["body"]
     assert ev["cell_kind"] == "original", ev["cell_kind"]
     assert any(c["fn"] == "load_json" for c in ev["calls"]), ev["calls"]
@@ -119,15 +127,22 @@ def _run_all(print):
     # 2. 원본 셀을 고쳐 실행 → modified + 수정 원문 수신
     modified = code_cells[3].replace("body_parts = get_checked(checkboxes)", "body_parts = []  # user edit")
     ip.run_cell(store_history=True, raw_cell=modified)
-    assert _wait(3)
+    assert _wait()
     ev = RECEIVED[-1]["body"]
     assert ev["cell_kind"] == "modified", ev["cell_kind"]
     assert "# user edit" in ev["cell_source"]
     print("2  modified metrics cell            OK  kind=%s status=%s error=%s" % (ev["cell_kind"], ev["status"], ev["error_type"]))
 
+    # 2b. 템플릿 셀과 첫 줄(import numpy as np)만 같은 새 셀 → new (첫 줄 휴리스틱 회귀 방지)
+    ip.run_cell(store_history=True, raw_cell="import numpy as np\nfoo = np.zeros(3)\nfoo.sum()")
+    assert _wait()
+    ev = RECEIVED[-1]["body"]
+    assert ev["cell_kind"] == "new", ev["cell_kind"]
+    print("2b new cell sharing an import line   OK  kind=%s" % ev["cell_kind"])
+
     # 3. 새 셀 + NameError → new / error / traceback / stdout
     ip.run_cell(store_history=True, raw_cell="x = 1\nprint('hello stdout')\nall_metrics[0]")
-    assert _wait(4)
+    assert _wait()
     ev = RECEIVED[-1]["body"]
     assert ev["cell_kind"] == "new"
     assert ev["status"] == "error" and ev["error_type"] == "NameError", (ev["status"], ev["error_type"])
@@ -138,14 +153,14 @@ def _run_all(print):
 
     # 4. 문법 오류 → before_exec
     ip.run_cell(store_history=True, raw_cell="def broken(:\n  pass")
-    assert _wait(5)
+    assert _wait()
     ev = RECEIVED[-1]["body"]
     assert ev["status"] == "error" and ev["error_phase"] == "before_exec", ev
     print("4  syntax error                     OK  type=%s phase=%s" % (ev["error_type"], ev["error_phase"]))
 
     # 5. 페이로드 상한
     ip.run_cell(store_history=True, raw_cell="print('A'*50000)\nraise RuntimeError('B'*50000)")
-    assert _wait(6)
+    assert _wait()
     size = RECEIVED[-1]["size"]
     assert size < 16 * 1024, f"payload {size} bytes exceeds 16KB"
     assert RECEIVED[-1]["body"]["stdout_truncated"] is True
