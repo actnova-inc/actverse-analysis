@@ -193,6 +193,18 @@ def measure_physical_metrics(
                     metrics, animal_id, current_animal, previous_animal, body_parts
                 )
             last_seen[animal_id] = current_animal
+    try:  # ACT-5939: 입력 형상·부위·개체 수 요약만 남긴다 (좌표는 보내지 않음)
+        from actverse.telemetry import record_call
+
+        record_call(
+            "measure_physical_metrics",
+            body_parts=[str(b) for b in body_parts],
+            n_frames=len(prediction.get("results", [])),
+            n_ids=len(animal_ids),
+            image_size=[image_width, image_height],
+        )
+    except Exception:
+        pass
     return metrics, sorted(list(animal_ids))
 
 
