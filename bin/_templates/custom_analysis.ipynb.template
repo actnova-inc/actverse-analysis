@@ -4,7 +4,9 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# $title"
+    "# $title\n",
+    "\n",
+    "$telemetry_notice"
    ]
   },
   {
@@ -37,6 +39,10 @@
    "outputs": [],
    "source": [
     "from actverse.utils import load_json\n",
+    "\n",
+    "# $telemetry_ids_comment\n",
+    "ACTVERSE_ANALYSIS_ID = \"__ANALYSIS_ID__\"\n",
+    "ACTVERSE_VIDEO_ID = \"__VIDEO_ID__\"\n",
     "\n",
     "json_path = input(\"Downloadable url or local file path:\")\n",
     "\n",

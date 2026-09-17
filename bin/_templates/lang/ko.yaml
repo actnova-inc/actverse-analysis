@@ -1,4 +1,6 @@
 lang: ko
+telemetry_notice: "> 이 노트북은 문제 해결과 지표 개선을 위해 셀 실행 기록(실행한 코드·에러·출력 텍스트)을 Actnova 로 전송합니다. 분석 데이터 본문과 계정 정보는 전송하지 않습니다."
+telemetry_ids_comment: "분석 식별자 (Actverse 가 자동으로 채웁니다 — 수정하지 마세요)"
 title: 액트버스 행동 분석하기
 section1:
   section_title1: 1. 준비하기

@@ -39,4 +39,10 @@ def get_checked(checkboxes: list[widgets.Checkbox]) -> list[BodyPart]:
     for checkbox, body_part in zip(checkboxes, body_parts):
         if checkbox.value:
             checked.append(body_part)
+    try:  # ACT-5939: 사용자가 고른 부위 이름만 남긴다
+        from actverse.telemetry import record_call
+
+        record_call("get_checked", body_parts=[str(b) for b in checked])
+    except Exception:
+        pass
     return checked

@@ -1,4 +1,6 @@
 lang: en
+telemetry_notice: "> To help with troubleshooting and metric improvements, this notebook sends cell execution records (code run, errors, printed text) to Actnova. Analysis data itself and account information are never sent."
+telemetry_ids_comment: "Analysis identifiers (filled automatically by Actverse — do not edit)"
 title: Actverse Behavior Analysis
 section1:
   section_title1: 1. Set Up for Analysis
