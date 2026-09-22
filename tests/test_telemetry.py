@@ -22,7 +22,7 @@ class _Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         n = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(n)
-        RECEIVED.append({"path": self.path, "body": json.loads(body), "size": n})
+        RECEIVED.append({"path": self.path, "body": json.loads(body), "size": n, "port": self.server.server_address[1]})
         self.send_response(202)
         self.end_headers()
 
@@ -203,6 +203,37 @@ def _run_all(print):
     assert len(RECEIVED) == before
     del os.environ["ACTVERSE_TELEMETRY"]
     print("9  opt-out env                      OK  no events")
+
+    # 11. 노트북에 서버가 치환해 넣은 ACTVERSE_TELEMETRY_ENDPOINT 가 환경변수보다 우선.
+    #     dev 워커가 발행한 노트북은 dev 로, prod 워커가 발행한 노트북은 prod 로 간다.
+    srv3 = _start_server()
+    _purge_actverse()
+    ip4 = _fresh_shell()
+    before = len(RECEIVED)
+    cell2_dev = (
+        code_cells[1]
+        .replace("__ANALYSIS_ID__", "an_dev_1")
+        .replace("__VIDEO_ID__", "vid_dev_1")
+        .replace("__TELEMETRY_ENDPOINT__", f"http://127.0.0.1:{srv3.server_address[1]}/api/v2/")
+        .replace('input("Downloadable url or local file path:")', '"/tmp/actverse_test_pred.json"')
+    )
+    r = ip4.run_cell(store_history=True, raw_cell=cell2_dev)
+    assert r.success, r.error_in_exec
+    assert _wait(before + 1), "no event via notebook endpoint"
+    assert RECEIVED[-1]["port"] == srv3.server_address[1], RECEIVED[-1]
+    assert RECEIVED[-1]["path"] == "/api/v2/analyses/an_dev_1/colab-events", RECEIVED[-1]["path"]
+    assert RECEIVED[-1]["body"]["cell_kind"] == "original", RECEIVED[-1]["body"]["cell_kind"]
+    print("11 notebook endpoint > env          OK  port=%s kind=%s" % (RECEIVED[-1]["port"], RECEIVED[-1]["body"]["cell_kind"]))
+
+    # 12. 자리표시가 치환되지 않은 구 노트북 → 환경변수(srv2) 유지
+    before = len(RECEIVED)
+    ip4.run_cell(store_history=True, raw_cell='ACTVERSE_TELEMETRY_ENDPOINT = "__TELEMETRY_ENDPOINT__"\nk = 1')
+    assert _wait(before + 1)
+    assert RECEIVED[-1]["port"] == srv3.server_address[1], RECEIVED[-1]["port"]
+    ip4.run_cell(store_history=True, raw_cell='ACTVERSE_TELEMETRY_ENDPOINT = ""\nk = 2')
+    assert _wait(before + 2)
+    assert RECEIVED[-1]["port"] == srv3.server_address[1], RECEIVED[-1]["port"]
+    print("12 unsubstituted placeholder ignored OK  endpoint unchanged")
 
     # 10. IPython 밖 import → no-op
     out = subprocess.run(

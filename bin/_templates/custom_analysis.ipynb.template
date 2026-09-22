@@ -43,6 +43,7 @@
     "# $telemetry_ids_comment\n",
     "ACTVERSE_ANALYSIS_ID = \"__ANALYSIS_ID__\"\n",
     "ACTVERSE_VIDEO_ID = \"__VIDEO_ID__\"\n",
+    "ACTVERSE_TELEMETRY_ENDPOINT = \"__TELEMETRY_ENDPOINT__\"\n",
     "\n",
     "json_path = input(\"Downloadable url or local file path:\")\n",
     "\n",
