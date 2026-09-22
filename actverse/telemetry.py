@@ -22,6 +22,11 @@ Colab 셀 실행 텔레메트리 (ACT-5939).
 3. 환경변수 ``ACTVERSE_ANALYSIS_ID`` / ``ACTVERSE_VIDEO_ID``
 셀마다 위 1~3 을 다시 확인한다 — 사용자가 import 뒤에 id 를 적어도 잡힌다.
 
+수신 주소(endpoint) 도 같은 방식이다. 노트북을 발행한 서버(dev / prod 워커)만이
+그 분석이 어느 환경 것인지 알므로, 템플릿 2번 셀의 ``ACTVERSE_TELEMETRY_ENDPOINT``
+자리표시를 서버가 자기 공개 URL 로 치환한다. 치환되지 않은 자리표시(``__`` 접두)
+는 무시하고 환경변수 ``ACTVERSE_TELEMETRY_ENDPOINT`` → 기본값(prod) 순으로 쓴다.
+
 비활성화: 환경변수 ``ACTVERSE_TELEMETRY=0`` 또는 ``disable()`` 호출.
 """
 
@@ -339,6 +344,11 @@ def _refresh_ids_from_namespace() -> None:
             _state.analysis_id = str(a)
         if v and not str(v).startswith("__"):
             _state.video_id = str(v)
+        # 수신 주소 — 노트북을 발행한 서버가 자기 환경(dev/prod)의 URL 로 치환한다.
+        # 자리표시 그대로면(구 서버·구 템플릿) 환경변수/기본값을 유지한다.
+        e = ns.get("ACTVERSE_TELEMETRY_ENDPOINT")
+        if e and not str(e).startswith("__") and str(e).strip():
+            _state.endpoint = str(e).strip().rstrip("/")
     except Exception:
         pass
 
@@ -377,7 +387,12 @@ def line_fingerprints(raw: str) -> list:
     return out
 
 
-_SERVER_SUBSTITUTED_PREFIXES = ("ACTVERSE_ANALYSIS_ID", "ACTVERSE_VIDEO_ID", "json_path")
+_SERVER_SUBSTITUTED_PREFIXES = (
+    "ACTVERSE_ANALYSIS_ID",
+    "ACTVERSE_VIDEO_ID",
+    "ACTVERSE_TELEMETRY_ENDPOINT",
+    "json_path",
+)
 
 
 def normalize_source(raw: str) -> str:
