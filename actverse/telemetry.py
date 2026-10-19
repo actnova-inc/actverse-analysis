@@ -392,6 +392,7 @@ _SERVER_SUBSTITUTED_PREFIXES = (
     "ACTVERSE_VIDEO_ID",
     "ACTVERSE_TELEMETRY_ENDPOINT",
     "json_path",
+    "notebook_name",
 )
 
 
